@@ -1,0 +1,52 @@
+tasks:
+  - name: Create Domain
+    id: user_domain
+    uses: "@modules/resource"
+    spec:
+      resource_type: identity.Domain
+      data:
+        name: ${{ var.domain.user }}
+        config:
+          LANGUAGE: ${{ var.default_language }}
+          TIMEZONE: ${{ var.default_timezone }}
+      matches:
+        - name
+      mode: NO_UPDATE
+
+  - name: Create DomainOwner
+    id: user_domain_owner
+    uses: "@modules/resource"
+    spec:
+      resource_type: identity.DomainOwner
+      data:
+        name: Domain Admin
+        owner_id: ${{ var.domain_owner.id }}
+        password: ${{ var.domain_owner.password }}
+        domain_id: ${{ tasks.user_domain.output.domain_id }}
+      matches:
+        - domain_id
+      mode: NO_UPDATE
+      verb:
+        read: get
+
+  - name: Create DomainOwner Token
+    id: user_domain_owner_token
+    uses: "@modules/resource"
+    spec:
+      resource_type: identity.Token
+      data:
+        user_type: DOMAIN_OWNER
+        user_id: ${{ tasks.user_domain_owner.spec.data.owner_id }}
+        credentials:
+          password: ${{ tasks.user_domain_owner.spec.data.password }}
+        domain_id: ${{ tasks.user_domain.output.domain_id }}
+      mode: EXEC
+      verb:
+        exec: issue
+
+  - name: Update spacectl configure
+    id: shell
+    uses: "@modules/shell"
+    spec:
+      run: |
+        spacectl config set api_key ${{ tasks.user_domain_owner_token.output.access_token }}

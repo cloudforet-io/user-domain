@@ -1,0 +1,14 @@
+import:
+  - /root/user-domain/user_domain.yaml
+  - /root/user-domain/create_role.yaml
+  - /root/user-domain/add_statistics_schedule.yaml
+var:
+  domain:
+    user: demo
+  default_language: en
+  default_timezone: America/Los_Angeles
+  domain_owner:
+    id: admin
+    password: Admin123!@#
+  user:
+    id: system_api_key

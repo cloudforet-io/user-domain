@@ -1,0 +1,90 @@
+tasks:
+  - name: Create domain admin role
+    id: domain_admin_role
+    uses: "@modules/resource"
+    spec:
+      resource_type: identity.Role
+      data:
+        name: Domain Admin
+        role_type: DOMAIN
+        policies:
+          - policy_type: MANAGED
+            policy_id: policy-managed-domain-admin
+        domain_id: ${{ tasks.user_domain.output.domain_id }}
+        page_permissions:
+          - page: "*"
+            permission: "MANAGE"
+      mode: EXEC
+      verb:
+        exec: create
+  - name: Create domain viewer role
+    id: domain_viewer_role
+    uses: "@modules/resource"
+    spec:
+      resource_type: identity.Role
+      data:
+        name: Domain Viewer
+        role_type: DOMAIN
+        policies:
+          - policy_type: MANAGED
+            policy_id: policy-managed-domain-viewer
+        domain_id: ${{ tasks.user_domain.output.domain_id }}
+        page_permissions:
+          - page: "*"
+            permission: "VIEW"
+      mode: EXEC
+      verb:
+        exec: create
+  - name: Create project manager role
+    id: project_manager_role
+    uses: "@modules/resource"
+    spec:
+      resource_type: identity.Role
+      data:
+        name: Project Manager
+        role_type: PROJECT
+        policies:
+          - policy_type: MANAGED
+            policy_id: policy-managed-project-manager
+        domain_id: ${{ tasks.user_domain.output.domain_id }}
+        page_permissions:
+        - page: project.*
+          permission: MANAGE
+        - page: asset_inventory.*
+          permission: MANAGE
+        - page: cost_explorer.dashboard
+          permission: VIEW
+        - page: cost_explorer.cost_analysis
+          permission: MANAGE
+        - page: cost_explorer.budget
+          permission: MANAGE
+        - page: alert_manager.*
+          permission: MANAGE
+      mode: EXEC
+      verb:
+        exec: create
+
+  - name: Create project viewer role
+    id: project_admin_viewer
+    uses: "@modules/resource"
+    spec:
+      resource_type: identity.Role
+      data:
+        name: Project Viewer
+        role_type: PROJECT
+        policies:
+          - policy_type: MANAGED
+            policy_id: policy-managed-project-viewer
+        domain_id: ${{ tasks.user_domain.output.domain_id }}
+        page_permissions:
+        - page: project.*
+          permission: VIEW
+        - page: asset_inventory.*
+          permission: VIEW
+        - page: cost_explorer.*
+          permission: VIEW
+        - page: alert_manager.*
+          permission: VIEW
+      mode: EXEC
+      verb:
+        exec: create
